@@ -1,4 +1,4 @@
 # shipfix
-Un juego del espacio para ZX-Uno
+Un juego para ZX-Uno
 
 --En progreso--
