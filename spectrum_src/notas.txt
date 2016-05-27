@@ -1,0 +1,6 @@
+
+En z88dk la pila por defecto está en FF57 (decimal 65367)
+Por lo que tenemos 65367 - 32768 de inicio del programa - 512 bytes de la pila =
+32087 bytes libres para codigo
+
+-----------------

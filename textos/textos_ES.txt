@@ -1,0 +1,209 @@
+#                                                              #
+#         Fichero de textos para Ship Fix, lenguaje ES         #
+#                                                              #
+# Si se hace un fichero para otro lenguaje, no traduzcan las   #
+# etiquetas, que empiezan con ===                              # 
+# El texto debe tener 64 caracteres de ancho maximo.           #
+# Cada etiqueta puede contener maximo 24 lineas.               #
+# Las lineas en blanco se tienen en cuenta.                    #
+# Las lineas que empiezan con # se descartan                   #
+# Las lineas que empiezan con @ son una opcion de menu.        #
+#                                                              #
+#  Envien textos traducidos como issues en github.com/shipfix  #
+#                     y muchas gracias!!                       #
+#                                                              #
+################################################################
+=== Principal
+
+
+
+                          Ship Fix
+
+                 Juego original para ZX-Uno
+
+                          by yombo
+
+
+
+@                         Comenzar
+@                     Redefinir teclas
+@                        Acerca de...
+@                          Salir
+=== AcercaDe
+
+                Este juego es software libre,
+  distribuido bajo licencia GPL v3 (ver fichero de licencia)
+
+      Pagina del proyecto: github.com/yomboprime/shipfix
+
+                             ***      
+
+
+
+         Desarrollado exclusivamente para el clon ZX-Uno
+
+              Codigo, graficos y sonido:  yombo
+
+                             ***
+
+            Agradecimientos: Todo ente del Cosmos,
+  incluyendo a Martijn van der Heide por la herramienta bas2tap
+
+            
+                        In Memoriam:
+
+                     M.L.S.       X.M.A.
+=== Redefinir
+
+
+
+               Redefine ahora las teclas para jugar.
+                Tu joystick funcionara igualmente.
+   La accion de "inventario" solo es accesible desde teclado.
+
+                      Pulsa una tecla para:
+
+@                    Izquierda........
+@                    Derecha..........
+@                    Arriba...........
+@                    Abajo............
+@                    Coger/Soltar.....
+@                    Inventario/menu..
+=== Inicio
+
+Eres Gregory Donovan, un avezado explorador y aventurero espa-
+cial conocido en todo el sistema. Te disponias a aterrizar en un
+planetoide cuando el ordenador ha detectado colision inminente
+con un micrometeoro y en nanosegundos ha decidido tu eyeccion,
+que se ha producido 4 decimas de segundo antes del impacto.
+
+Has aterrizado con la capsula de emergencia sano y salvo, pero
+ha quedado maltrecha. Tu nave ha efectuado un aterrizaje forzoso
+al otro lado del planetoide y tiene desperfectos no diagnostica-
+bles por telemetria. Temes lo peor: que se haya perdido todo el
+aire y no tengas suficiente antes de que llegue un rescate, que
+puede tardar dias.
+
+Llevas el traje espacial contigo, que incluye propulsores y com-
+bustible suficiente de momento.
+
+Tu mision ahora es llegar hasta la nave, ver su estado y ver si
+puede ser reparada. Cuando llegues cerca de ella pulsa disparo
+para entrar.
+
+=== LlegarNave
+
+Enhorabuena! Has conseguido llegar a la nave. Detectas enseguida
+los desperfectos, que afortunadamente no son graves pero impiden
+despegar. Por eso la nave no fue a recogerte. Lo mas importante,
+el habitaculo y las reservas de aire siguen intactos y estancos.
+Por tanto tu reserva de oxigeno ha aumentado de pocas horas a
+semanas.
+
+De momento estas a salvo, pero el mensaje de auxilio que se en-
+vio en el accidente podria atraer tanto a amigos como enemigos.
+Lo mejor es poner los pies en polvorosa.
+
+Para reparar la nave deberas encontrar los siguientes objetos,
+que han quedado desperdigados por la superficie del planetoide
+durante el aterrizaje.
+
+      Pulsa una tecla para ver el equipo que necesitas...
+
+=== EquipoNecesario
+
+          Pulsa disparo para coger o soltar un objeto.
+        Recuerda, solo puedes llevar un objeto a la vez.
+     La tecla "inventario" te servira en cualquier momento.
+=== InventarioEquipo
+
+
+                 Necesitas el siguiente equipo:
+
+=== InventarioNave
+
+              Has dejado estos objetos en la nave:
+
+=== AunNoLlegadoNave
+
+                  Aun no has llegado a la nave.
+
+=== InventarioNaveVacio
+
+      No has dejado aun ningun objeto necesario en la nave
+
+=== InventarioActual
+
+                       Llevas este objeto:
+
+=== InventarioVacio
+
+                    No llevas ningun objeto.
+=== Inventario
+
+@                       Continuar juego
+@                      Abandonar partida
+=== ConfirmarFinPartida
+
+               Abandonar la partida: Estas seguro?
+
+@                      No, volver al juego
+@                    Si, terminar la partida
+=== ConfirmarFinJuego
+
+                Abandonar el juego: Estas seguro?
+
+@                      No, volver al menu
+@                     Si, salir al sistema
+=== NombresObjetos
+@       Conmutador sismico de sentido giratorio invertido
+@       Variador de filtrado intermitente
+@       Cable UTP-Cat 8
+@       Lapiz nuclear de bricolaje
+@       Cristal dodecaedrico helicoidal
+@       Valvula del manguito del tritio
+@       la capsula
+@       la nave
+=== MuertePorColision
+
+          Has colisionado a demasiada velocidad.
+
+   Tus dias de intrepidos viajes han acabado en este perdido
+                        planetoide.
+
+                        
+                           FIN
+
+=== MuerteExtraviado
+
+
+           Te has alejado demasiado del planetoide y
+
+                 has perdido la orientacion.
+
+            Has acabado extraviado en el espacio.
+
+
+                           FIN
+
+=== Exito
+
+
+
+
+                Enhorabuena, has sobrevivido!
+
+                   
+                   
+                Podras seguir tu periplo como
+              el mejor aventurero del espacio...
+                 
+                 
+                 
+                 
+                           FIN
+
+=== PulsaUnaTecla
+              Pulsa una tecla para continuar...
+=== Salida
+Gracias por jugar a Ship Fix

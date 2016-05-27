@@ -1,0 +1,7 @@
+bin2tap-js v1.0.0
+Uso: node bin2tap.js <path_relativo_fichero_binario>
+
+Leyendo fichero binario en: /media/datos/Devel/spectrum/shipfix/herramientas/bin2tap-js/../../spectrum_src/g_ES.bin
+Fichero cargado. Procesando...
+Guardando fichero TAP en /media/datos/Devel/spectrum/shipfix/herramientas/bin2tap-js/../../spectrum_src/g_ES.tap
+Fichero TAP guardado.
