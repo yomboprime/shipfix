@@ -16,7 +16,7 @@
 
 
 # configura aqui tu path a Node js:
-node = /media/datos/soft/nodejs/node-v4.4.3-linux-x64/bin/node
+node = /media/datos/soft/nodejs/node-v4.4.5-linux-x64/bin/node
 
 # Todos los targets:
 all: generarCargadorBASIC generarPantallaCarga compilarPantallaCarga crearTAPPantallaCarga generarTerreno generarImagenes generarTextosES compilarJuegoES crearTAPJuegoES concatenarTAPsES generarWavES mostrarTamTAP

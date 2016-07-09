@@ -38,8 +38,8 @@ extern void radasPonerModoRadastan( unsigned char atributos, unsigned char borde
 
     radasPonerPaleta( paleta );
 
-    outp( 0xBF3B, 64 );
-    outp( 0xFF3B, 3 );
+    outp( 0xFC3B, 64 );
+    outp( 0xFD3B, 3 );
 
     iPantallaActual = 1;
     pantallaActual = DIRECCION_PANTALLA1;
@@ -55,8 +55,8 @@ extern void radasPonerModoNormal( unsigned char atributos, unsigned char borde )
          radasCambiarPantalla();
     }
     
-    outp( 0xBF3B, 64 );
-    outp( 0xFF3B, 0 );
+    outp( 0xFC3B, 64 );
+    outp( 0xFD3B, 0 );
 
     zx_colour( atributos );
     zx_border( borde );
