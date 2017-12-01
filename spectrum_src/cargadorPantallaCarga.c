@@ -1,6 +1,6 @@
 /*
     This file is part of Shipfix
- 
+
     Shipfix is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -17,11 +17,22 @@
 
 
 #include <spectrum.h>
+#include <stdlib.h>
 
 #include "modoRadastan.h"
 #include "imagenCarga.h"
 
 void main( void ) {
+
+    unsigned char valorPrevioDEVCTRL2;
+    unsigned char *p;
+
+    // Obtiene valor de DEVCTRL2
+    outp( 0xFC3B, 0x0F );
+    valorPrevioDEVCTRL2 = inp( 0xFD3B );
+
+    // Fuerza activacion de modo radas escribiendo en DEVCTRL2
+    outp( 0xFD3B, 0x00 );
 
     radasPonerModoRadastan( PAPER_BLACK, PAPER_WHITE | INK_BLACK, &paletas[ 0 ] );
 
@@ -29,9 +40,12 @@ void main( void ) {
 
     ula_sync();
     radasCambiarPantalla();
-    
+
     // El programa termina con el modo radas puesto y mostrando la imagen.
     // Se vuelve al basic y se carga el programa principal.
-    
-}
 
+    // Pintamos un pixel en el backbuffer con el valor de DEVCTRL2
+    p = radasObtenerLaOtraPantalla();
+    *p = valorPrevioDEVCTRL2;
+
+}

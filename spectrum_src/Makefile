@@ -1,5 +1,5 @@
 #    This file is part of Shipfix
-# 
+#
 #    Shipfix  is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -16,11 +16,12 @@
 
 
 # configura aqui tu path a Node js:
-node = /media/datos/soft/nodejs/node-v4.4.5-linux-x64/bin/node
+node = node
 
 # Todos los targets:
-all: generarCargadorBASIC generarPantallaCarga compilarPantallaCarga crearTAPPantallaCarga generarTerreno generarImagenes generarTextosES compilarJuegoES crearTAPJuegoES concatenarTAPsES generarWavES mostrarTamTAP
+#all: generarCargadorBASIC generarPantallaCarga compilarPantallaCarga crearTAPPantallaCarga generarTerreno generarImagenes generarTextosES compilarJuegoES crearTAPJuegoES concatenarTAPsES generarWavES mostrarTamTAP
 
+all: generarCargadorBASIC compilarPantallaCarga crearTAPPantallaCarga generarTextosES compilarJuegoES crearTAPJuegoES concatenarTAPsES mostrarTamTAP
 
 # Targets comunes a todos los lenguajes:
 
@@ -33,7 +34,7 @@ generarPantallaCarga:
 
 compilarPantallaCarga:
 	zcc +zx -o p.bin -lndos modoRadastan.c cargadorPantallaCarga.c > ultimolog.txt
-	
+
 crearTAPPantallaCarga:
 	$(node) ../herramientas/bin2tap-js/bin2tap.js ../../spectrum_src/p.bin > ultimolog.txt
 

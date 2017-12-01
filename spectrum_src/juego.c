@@ -1,6 +1,6 @@
 /*
     This file is part of Shipfix
- 
+
     Shipfix is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -187,6 +187,8 @@ int xEntera, yEntera;
 
 int difH1, difH2;
 
+unsigned char valorPrevioDEVCTRL2;
+
 #define pintarJugador() radasPintarImagen( ( unsigned char )xEntera, ( unsigned char )yEntera, fotogramasJugador[ fotogramaActualJugador ] );
 
 // ****** Programa principal ******
@@ -194,7 +196,10 @@ int difH1, difH2;
 void main( void ) {
 
     radasCambiarVariablesPantalla();
-    
+
+    // Recupera valor de DEVCTRL2 guardado en el backbuffer por el programa de carga
+    valorPrevioDEVCTRL2 = *( radasObtenerLaOtraPantalla() );
+
     resetKeyboard();
 
     secuenciaPulsarTecla();
@@ -208,14 +213,14 @@ void main( void ) {
 
         clsTexto();
         opcion = mostrarMenu( menuPrincipal, PAPER_BLACK | INK_CYAN, PAPER_BLUE | INK_WHITE, 0, 0 );
-        
+
         switch ( opcion ) {
             case 0:
-                
+
                 inicializarEstadoDelJuego();
-                
+
                 mostrarTextoInicio();
-                
+
                 do {
 
                     bucleJuego();
@@ -252,7 +257,7 @@ void main( void ) {
                 mostrarAcercaDe();
                 break;
             case 3:
-                
+
                 // Salir (confirmacion)
                 clsTexto();
                 opcion = mostrarMenu( menuConfirmarFinJuego, PAPER_BLACK | INK_CYAN, PAPER_BLUE | INK_WHITE, 0, 0 );
@@ -266,26 +271,30 @@ void main( void ) {
                 break;
         }
 
-    }    
+    }
 
     // Fin del programa
     clsTexto();
     zx_border( INK_WHITE );
     zx_colour( PAPER_WHITE | INK_BLACK );
     imprimir( mensajeSalida );
-    
+
+    // Restaura valor de DEVCTRL2 previo a la ejecucion
+    outp( 0xFC3B, 0x0F );
+    outp( 0xFD3B, valorPrevioDEVCTRL2 );
+
 }
 
 // ****** Funciones ******
 
 void inicializarEstadoDelJuego() {
-    
+
     unsigned char x;
-    
+
     // Estado inicial del juego
-    
+
     srand( time(NULL) );
-   
+
     numPantallasX = getNumPantallasX();
     posicionPantallaX = 0;
     posicionPantallaY = 0;
@@ -351,11 +360,11 @@ void inicializarEstadoDelJuego() {
         o->indice = i;
         o->tamx2 = o->imagen->tamx2;
         o->tamy = o->imagen->tamy;
-        
+
         o->necesario = 0;
     }
 
-    
+
     // Pone 3 objetos como necesarios
     for ( i = 0; i < NUM_OBJETOS_NECESARIOS; i++ ) {
         Objeto *o = NULL;
@@ -370,14 +379,14 @@ void inicializarEstadoDelJuego() {
         o->necesario = 1;
     }
 
-    
+
     integrarObjetoEnTerreno( &objetos[ OBJETO_CAPSULA ] );
     integrarObjetoEnTerrenoAdaptandose( &objetos[ OBJETO_NAVE ] );
 
     for ( i = 0; i < NUM_OBJETOS_DINAMICOS; i++ ) {
 
         // Pone los objetos moviles en el suelo
-        
+
         Objeto *o = &objetos[ i ];
 
         o->flagsEstado = ESTADO_OBJETO_CAYENDO;
@@ -385,10 +394,10 @@ void inicializarEstadoDelJuego() {
         o->vely = 0;
 
         o->yEnt = o->y >> BITS_DECIMALES_Y;
-        
+
         o->yant = o->yEnt;
         o->yant2 = o->yEnt;
-        
+
         llevarObjetoAlSuelo( &objetos[ i ] );
     }
 
@@ -420,23 +429,23 @@ void esperarTecla() {
 }
 
 void redefinirTeclas() {
-    
+
     unsigned char i, j, tecla, teclaOK;
     unsigned int codigo, codigo2;
-    
+
     Menu *menu = &menuRedefinir;
-    
+
     clsTexto();
 
     if ( menu->mensaje != NULL ) {
         imprimir( menu->mensaje );
     }
-    
+
     for ( i = 0; i < menu->numOpciones; i++ ) {
 
         OpcionMenu *opcion = &menu->opciones[ i ];
         imprimir( opcion->texto );
-        
+
         if ( i > 0 ) {
             pintarSegmentoConAtributos( menu->y + i - 1, menu->opciones[ i - 1 ].x0, menu->opciones[ i - 1 ].x1 - 1, PAPER_BLACK | INK_CYAN );
         }
@@ -444,7 +453,7 @@ void redefinirTeclas() {
 
         while ( getTecla() );
 
-        teclaOK = 0;        
+        teclaOK = 0;
         while ( ! teclaOK ) {
             tecla = 0;
             while ( ! tecla ) {
@@ -483,7 +492,7 @@ void redefinirTeclas() {
                 }
             }
         }
-        
+
         switch ( i ) {
             case 0:
                 mapaTeclado.left = codigo;
@@ -514,7 +523,7 @@ void redefinirTeclas() {
         pintarSegmentoConAtributos( menu->y + i, opcion->x1, opcion->x1 + 1, PAPER_BLACK | INK_YELLOW );
 
         imprimir( "\n" );
-        
+
         // Sonidillo de tecla pulsada
         reproducirIndiceSonido( SONIDO_DEJAR_OBJETO_NAVE, VALOR_CHIP_SEGUNDO );
     }
@@ -553,7 +562,7 @@ unsigned char mostrarMenu( Menu *menu, unsigned char atributosGeneral, unsigned 
         valorJoystick = leerJoystickYTeclado();
 
         iAnt = i;
-        
+
         if ( ( valorJoystick & in_UP ) && ! ( valorAntJoystick & in_UP ) ) {
             if ( i > 0 ) {
                 i--;
@@ -571,7 +580,7 @@ unsigned char mostrarMenu( Menu *menu, unsigned char atributosGeneral, unsigned 
                 i = 0;
             }
         }
-        
+
         if ( iAnt != i ) {
 
             reproducirIndiceSonido( SONIDO_SOLTAR_OBJETO, VALOR_CHIP_SEGUNDO );
@@ -590,9 +599,9 @@ unsigned char mostrarMenu( Menu *menu, unsigned char atributosGeneral, unsigned 
 void mostrarInventario( unsigned char offsetY, unsigned char forzar ) {
 
     offsetY = listarInventario( offsetY, forzar );
-    
+
     // Menu continuar / salir de la partida
-    
+
     opcion = mostrarMenu( menuInventario, PAPER_BLACK | INK_CYAN, PAPER_BLUE | INK_WHITE, 0, offsetY );
     if ( opcion == 1 ) {
         clsTexto();
@@ -610,7 +619,7 @@ unsigned char listarInventario( unsigned char offsetY, unsigned char forzar ) {
     if ( offsetY == 0 ) {
         clsTexto();
     }
-    
+
     if ( naveVisitada || forzar ) {
 
         // Objetos necesarios
@@ -674,7 +683,7 @@ unsigned char listarInventario( unsigned char offsetY, unsigned char forzar ) {
     }
 
     return offsetY;
-    
+
 }
 
 void mostrarTextoInicio() {
@@ -699,58 +708,58 @@ void mostrarLlegadaNave() {
     clsTexto();
 
     imprimir( mensajeEquipoNecesario );
-    
+
     listarInventario( 3, 1 );
-    
+
     imprimir( "\n" );
-    
+
     imprimir( mensajePulsaUnaTecla );
-    
+
     esperarTecla();
 
     jugador.velx = 0;
 }
 
 void mostrarMuertePorColision() {
-    
+
     clsTexto();
-    
+
     imprimir( mensajeMuertePorColision );
-    
+
     imprimir( mensajePulsaUnaTecla );
-    
+
     esperarTecla();
-    
+
 }
 
 void mostrarMuerteExtraviado() {
-    
+
     clsTexto();
-    
+
     imprimir( mensajeMuerteExtraviado );
-    
+
     imprimir( mensajePulsaUnaTecla );
-    
+
     esperarTecla();
-    
+
 }
 
 void mostrarExito() {
 
     clsTexto();
-    
+
     imprimir( mensajeExito );
-    
+
     imprimir( mensajePulsaUnaTecla );
-    
+
     esperarTecla();
-    
+
 }
 
 void mostrarAcercaDe() {
-    
+
     clsTexto();
-    
+
     imprimir( mensajeAcercaDe );
 
     esperarTecla();
@@ -760,9 +769,9 @@ void mostrarAcercaDe() {
 void secuenciaPulsarTecla() {
 
     // El estado de la pantalla en este punto es el que dejó el programa de pantalla de carga.
-    
+
     // Pinta las imagenes de los dedos pulsando una tecla en las dos pantallas y las va alternando.
-    
+
     unsigned int t;
 
     radasCopiarPantalla( radasObtenerLaOtraPantalla(), radasObtenerPantallaActual() );
@@ -795,23 +804,23 @@ void secuenciaPulsarTecla() {
 void secuenciaFinal() {
 
     // Secuencia de despegue de la nave
-    
+
     unsigned char i, j, k, l;
     int n;
-    
+
     static unsigned char sonidoTempBerbiqui[ 16 ];
     static unsigned char sonidoTempMartillo[ 16 ];
     static unsigned char sonidoTemp[ 16 ];
-    
+
     unsigned char *sonidoBerbiqui = getSonido( SONIDO_BERBIQUI );
     unsigned char *sonidoMartillazo = getSonido( SONIDO_MARTILLAZO );
-    
+
     unsigned char cambiarPant;
     unsigned char numPixelsBorrarPant;
-    
+
     Objeto *nave = &objetos[ OBJETO_NAVE ];
 
-    for ( i = 0; i < NUM_REGISTROS_SONIDO; i++ ) {    
+    for ( i = 0; i < NUM_REGISTROS_SONIDO; i++ ) {
         sonidoTempBerbiqui[ i ] = sonidoBerbiqui[ i ];
     }
     for ( i = 0; i < NUM_REGISTROS_SONIDO; i++ ) {
@@ -856,14 +865,14 @@ void secuenciaFinal() {
         }
     }
     csleep( 120 );
-    
+
     // Cuatro agujeros
     for ( j = 0; j < 4; j++ ) {
-        
+
         sonidoTempBerbiqui[ REGISTRO_SONIDO_MIXER ] = 0xF6;
         reproducirSonido( sonidoTempBerbiqui, VALOR_CHIP_SEGUNDO );
         csleep( 70 );
-        
+
         sonidoTempBerbiqui[ REGISTRO_SONIDO_MIXER ] = 0xFE;
         reproducirSonido( sonidoTempBerbiqui, VALOR_CHIP_SEGUNDO );
         csleep( 60 );
@@ -883,7 +892,7 @@ void secuenciaFinal() {
     reproducirSonido( sonidoTempBerbiqui, VALOR_CHIP_SEGUNDO );
     csleep( 100 );
 
-    
+
     for ( i = 0; i < 4; i++ ) {
         sonidoTempMartillo[ REGISTRO_SONIDO_A_VOLUME ] = 0x0F;
         reproducirSonido( sonidoTempMartillo, VALOR_CHIP_DEFECTO );
@@ -963,7 +972,7 @@ void secuenciaFinal() {
                     numPixelsBorrarPant++;
                 }
             }
-            
+
             ula_sync();
             if ( cambiarPant != 0 ) {
                 radasCambiarPantalla();
@@ -972,7 +981,7 @@ void secuenciaFinal() {
     }
     csleep( 80 );
 
-    
+
     // Sonido tren aterrizaje
     sonidoTempBerbiqui[ REGISTRO_SONIDO_B_VOLUME ] = 0x0B;
     sonidoTempBerbiqui[ REGISTRO_SONIDO_B_COARSE_PITCH ] = 0x05;
@@ -986,17 +995,17 @@ void secuenciaFinal() {
         radasScrollRectanguloArriba( radasObtenerLaOtraPantalla(), nave->xEnt2, nave->yEnt + nave->tamy - 6, nave->tamx2, 6 );
         csleep( 45 );
     }
-    
+
     // Fin sonido tren aterrizaje
     sonidoTempBerbiqui[ REGISTRO_SONIDO_B_VOLUME ] = 0x00;
     sonidoTempBerbiqui[ REGISTRO_SONIDO_MIXER ] = 0xFE;
     reproducirSonido( sonidoTempBerbiqui, VALOR_CHIP_SEGUNDO );
-    
+
     csleep( 100 );
 
     // Sonido de escape de la nave
     reproducirIndiceSonido( SONIDO_FINAL_NAVE, VALOR_CHIP_SEGUNDO );
-    
+
     // La nave se hace pequeñita
     k = nave->xEnt2;
     l = nave->yEnt;
@@ -1014,7 +1023,7 @@ void secuenciaFinal() {
         radasCambiarPantalla();
         csleep( 34 - i );
     }
-    
+
     // Hace la estrella
     for ( i = 1; i <= 6; i++ ) {
         radasBorrarRectangulo( k, l, nave->tamx2, nave->tamy + 1 );
@@ -1048,21 +1057,21 @@ void secuenciaFinal() {
     }
 
     csleep( 220 );
-    
+
     radasCls( radasObtenerPantallaActual(), 0x00 );
     radasCambiarPantalla();
-    
+
     radasPonerModoNormal( PAPER_BLACK | INK_CYAN, PAPER_BLACK );
 
     mostrarExito();
-    
+
 }
 
 void llevarObjetoAlSuelo( Objeto *o ) {
 
     unsigned char *alturas1;
     unsigned char i, sx, sy, x, y, yMin;
-    
+
     if ( o->pantalla == objetos[ OBJETO_NAVE ].pantalla ) {
         // Se deja el objeto en la nave
         o->flagsEstado = ESTADO_OBJETO_EN_LA_NAVE;
@@ -1073,7 +1082,7 @@ void llevarObjetoAlSuelo( Objeto *o ) {
     alturas1 = getMapaAlturas();
 
     alturas1 += ((unsigned int) o->pantalla ) << BITS_ANCHO_PANTALLA;
-    
+
     x = o->xEnt2;
     sx = o->tamx2;
     sy = o->tamy;
@@ -1084,13 +1093,13 @@ void llevarObjetoAlSuelo( Objeto *o ) {
             yMin = y;
         }
     }
-    
+
     if ( yMin < PANTALLA_Y - ALTURA_TERRENO ) {
         yMin = PANTALLA_Y - ALTURA_TERRENO;
     }
-    
+
     o->yEnt = yMin;
-    o->flagsEstado = ESTADO_OBJETO_ESTATICO;    
+    o->flagsEstado = ESTADO_OBJETO_ESTATICO;
 
     integrarObjetoEnTerreno( o );
 }
@@ -1103,7 +1112,7 @@ void integrarObjetoEnTerreno( Objeto *o ) {
 
     unsigned char *alturas1;
     unsigned char i, l, x, h;
-    
+
     h = PANTALLA_Y - o->yEnt - 1;
 
     if ( o->flagsEstado || h > ALTURA_TERRENO ) {
@@ -1135,7 +1144,7 @@ void integrarObjetoEnTerrenoAdaptandose( Objeto *o ) {
     unsigned char *alturas1;
     unsigned char *pixels = o->imagen->pixels;
     unsigned char *pixelsi, *pixels1;
-    
+
     unsigned char i, j, l, x, h;
 
     if ( o->flagsEstado ) {
@@ -1185,7 +1194,7 @@ void restauraAlturasObjetosEstaticos() {
 void computarObjetosEnPantalla() {
 
     unsigned int i;
-    
+
     numObjetosEnPantallaActual = 0;
 
     for ( i = 0; i < MAX_OBJETOS; i++ ) {
@@ -1220,7 +1229,7 @@ void redibujarEscenario() {
 }
 
 void pintarObjetosEstaticos() {
-    
+
     for ( i = 0; i < numObjetosEnPantallaActual; i++ ) {
         Objeto *o = objetosPantallaActual[ i ];
         if ( ! o->flagsEstado ) {
@@ -1231,11 +1240,11 @@ void pintarObjetosEstaticos() {
 }
 
 void cogerSoltarObjeto() {
-    
+
     Objeto *o;
 
     if ( objetoCogido == OBJETO_NULO ) {
-        
+
         // El jugador no porta objeto. Detectar objeto para cogerlo.
         o = detectarObjetoProximoAlJugador();
         if ( o ) {
@@ -1293,9 +1302,9 @@ void cogerSoltarObjeto() {
         }
     }
     else {
-        
+
         // El jugador porta un objeto. La accion es dejarlo
-        
+
         // Si estamos en el borde de la pantalla, no podemos soltarlo
         if ( xEntera < 2 || xEntera >= PANTALLA_X2 -3 ) {
             // Sonidillo de que no se puede soltar el objeto
@@ -1355,11 +1364,11 @@ void cogerSoltarObjeto() {
 
         numObjetosCayendo++;
         objetoCogido = OBJETO_NULO;
-        
+
         computarObjetosEnPantalla();
-        
+
     }
-    
+
 }
 
 Objeto *detectarObjetoProximoAlJugador() {
@@ -1368,21 +1377,21 @@ Objeto *detectarObjetoProximoAlJugador() {
         // Solo se pueden coger objetos en pantalla a nivel de terreno
         return NULL;
     }
-    
+
     for ( i = 0; i < numObjetosEnPantallaActual; i++ ) {
         Objeto *o = objetosPantallaActual[ i ];
         if ( o->flagsEstado ) {
             // Solo se puede coger un objeto estatico (que ha caido al suelo)
             continue;
         }
-        if ( xEntera <= o->xEnt2 + o->tamx2 && 
+        if ( xEntera <= o->xEnt2 + o->tamx2 &&
              xEntera + jugador.tamx2 >= o->xEnt2 &&
-             yEntera <= o->yEnt + o->tamy && 
+             yEntera <= o->yEnt + o->tamy &&
              yEntera + jugador.tamy >= o->yEnt ) {
             return o;
         }
     }
-    
+
     return NULL;
 }
 
@@ -1392,38 +1401,38 @@ Objeto *detectarObjetoProximoAlJugadorEnX() {
         // Solo se pueden coger objetos en pantalla a nivel de terreno
         return NULL;
     }
-    
+
     for ( i = 0; i < numObjetosEnPantallaActual; i++ ) {
         Objeto *o = objetosPantallaActual[ i ];
         if ( o->flagsEstado ) {
             // Solo se puede coger un objeto estatico (que ha caido al suelo)
             continue;
         }
-        if ( xEntera <= o->xEnt2 + o->tamx2 && 
+        if ( xEntera <= o->xEnt2 + o->tamx2 &&
              xEntera + jugador.tamx2 >= o->xEnt2 ) {
             return o;
         }
     }
-    
+
     return NULL;
 }
 
 unsigned char detectarObjetoProximoANave( Objeto *obj ) {
 
     Objeto *o = &objetos[ OBJETO_NAVE ];
-    
+
     if ( posicionPantallaY > 0 ) {
         // Solo se pueden coger objetos en pantalla a nivel de terreno
         return 0;
     }
-    
+
     if ( obj->pantalla != o->pantalla ) {
         return 0;
     }
-    
-    if ( obj->xEnt2 <= o->xEnt2 + o->tamx2 && 
+
+    if ( obj->xEnt2 <= o->xEnt2 + o->tamx2 &&
          obj->xEnt2 + obj->tamx2 >= o->xEnt2 &&
-         obj->yEnt <= o->yEnt + o->tamy && 
+         obj->yEnt <= o->yEnt + o->tamy &&
          obj->yEnt + obj->tamy >= o->yEnt ) {
         return 1;
     }
@@ -1481,7 +1490,7 @@ void actualizarXAnt2ObjetosCayendo() {
 void bucleJuego() {
 
     unsigned char i;
-    
+
     inicializarSonido();
 
     radasPonerModoRadastan( PAPER_BLACK, PAPER_WHITE | INK_BLACK, &paletas[ 0 ] );
@@ -1489,7 +1498,7 @@ void bucleJuego() {
     redibujarEscenario();
 
     // Bucle del juego
-    
+
     valorBucleJuego = BUCLE_JUEGO_CONTINUAR;
     while ( valorBucleJuego == BUCLE_JUEGO_CONTINUAR ) {
 
@@ -1505,16 +1514,16 @@ void bucleJuego() {
             valorBucleJuego = BUCLE_JUEGO_MENU;
             break;
         }
-        
-        
+
+
         // Debug
         /*
         if ( tecla == 'x' ) {
             valorBucleJuego = BUCLE_JUEGO_EXITO;
         }
         */
-        
-        
+
+
         //valorJoystick = funcionJoystickActual( &mapaTeclado );
         valorJoystick = leerJoystickYTeclado();
         i = 0;
@@ -1536,7 +1545,7 @@ void bucleJuego() {
             jugador.vely ++;
             i = 1;
         }
-        
+
         if ( i == 1 ) {
             setVolumenSonidoJetpac( VOLUMEN_SONIDO_JETPAC );
         }
@@ -1550,7 +1559,7 @@ void bucleJuego() {
         radasBorrarRectangulo( ( unsigned char )( jugador.xant2 ),
                                ( unsigned char )( jugador.yant2 ),
                                jugador.tamx2, jugador.tamy );
-        
+
         // Borra objetos dinamicos (cayendo)
         if ( numObjetosCayendo ) {
             for ( i = 0; i < numObjetosEnPantallaActual; i++ ) {
@@ -1566,7 +1575,7 @@ void bucleJuego() {
             cogerSoltarObjeto();
         }
         disparoPulsadoFrameAnterior = valorJoystick & in_FIRE;
-        
+
         // Gravedad
         jugador.vely ++;
 
@@ -1588,19 +1597,19 @@ void bucleJuego() {
                     o->vely ++;
                     o->y += o->vely;
                     o->yEnt = o->y >> BITS_DECIMALES_Y;
-                    
+
                     if ( posicionPantallaY > 0 ) {
-                        
+
                         // Objeto cayendo por encima de la pantalla del terreno. Si llega
                         // al borde inferior, se le lleva al suelo.
                         if ( o->yEnt + o->tamy > PANTALLA_Y ) {
 
                             llevarObjetoAlSuelo( o );
-                            
+
                             computarObjetosEnPantalla();
-                            
+
                             numObjetosCayendo--;
-                            
+
                             pintarJugador()
                             ula_sync();
                             radasCambiarPantalla();
@@ -1611,7 +1620,7 @@ void bucleJuego() {
                                                    ( unsigned char )( jugador.yant ),
                                                    jugador.tamx2, jugador.tamy );
                             flagObjetoCaido = 1;
-   
+
                         }
                         else if ( o->y < 0 ) {
                             // Colision con borde superior: el objeto se para
@@ -1632,9 +1641,9 @@ void bucleJuego() {
                         }
                         if ( difH1 >= 0 ) {
                             if ( detectarObjetoProximoANave( o ) ) {
-                                
+
                                 reproducirIndiceSonido( SONIDO_DEJAR_OBJETO_NAVE, VALOR_CHIP_SEGUNDO );
-                                
+
                                 o->flagsEstado = ESTADO_OBJETO_EN_LA_NAVE;
 
                                 comprobarExito();
@@ -1661,9 +1670,9 @@ void bucleJuego() {
                                 o->flagsEstado = ESTADO_OBJETO_ESTATICO;
 
                                 // Si el jugador "molesta", lo subimos:
-                                if ( xEntera <= o->xEnt2 + o->tamx2 && 
+                                if ( xEntera <= o->xEnt2 + o->tamx2 &&
                                      xEntera + jugador.tamx2 >= o->xEnt2 &&
-                                     yEntera < o->yEnt + o->tamy && 
+                                     yEntera < o->yEnt + o->tamy &&
                                      yEntera + jugador.tamy > o->yEnt ) {
 
                                     yEntera += ((int)o->yEnt) - ( yEntera + jugador.tamy );
@@ -1672,7 +1681,7 @@ void bucleJuego() {
                                 }
 
                                 integrarObjetoEnTerreno( o );
-                                
+
                                 pintarJugador()
                                 radasPintarImagen( o->xEnt2, o->yEnt, o->imagen );
                                 ula_sync();
@@ -1684,10 +1693,10 @@ void bucleJuego() {
                                                        ( unsigned char )( jugador.yant ),
                                                        jugador.tamx2, jugador.tamy );
                                 radasPintarImagen( o->xEnt2, o->yEnt, o->imagen );
-                                
-                                
-                                
-                                
+
+
+
+
                                 flagObjetoCaido = 1;
 
                             }
@@ -1697,7 +1706,7 @@ void bucleJuego() {
                     }
                 }
             }
-            
+
             if ( flagObjetoCaido ) {
 
                 // Actualiza posiciones anterior2 al haber cambiado de shadow screen
@@ -1708,9 +1717,9 @@ void bucleJuego() {
 
                 if ( numObjetosCayendo ) {
                    actualizarXAnt2ObjetosCayendo();
-                }                
+                }
             }
-            
+
         }
 
         cambioDePantalla = 0;
@@ -1773,13 +1782,13 @@ void bucleJuego() {
                 posicionPantallaY++;
             }
         }
-        
+
         if ( cambioDePantalla ) {
-            
+
             punteroAlturaPantallaActual = getMapaAlturas() + ( ((unsigned int) posicionPantallaX ) << BITS_ANCHO_PANTALLA );
 
             if ( posicionPantallaY == 0 ) {
-                
+
                 // Estamos en pantalla a nivel de suelo, dibujar terreno y objetos estaticos
 
                 posicionAlturaPantallaActual = ((unsigned int)posicionPantallaX) << BITS_ANCHO_PANTALLA;
@@ -1803,10 +1812,10 @@ void bucleJuego() {
                         radasPintarImagen( o->xEnt2, o->yEnt, o->imagen );
                     }
                 }
-                
+
                 ula_sync();
                 radasCambiarPantalla();
-                
+
                 radasBorrarRectangulo( ( unsigned char )( jugador.xant ),
                                        ( unsigned char )( jugador.yant ),
                                        jugador.tamx2, jugador.tamy );
@@ -1827,7 +1836,7 @@ void bucleJuego() {
                 computarObjetosEnPantalla();
 
                 pintarMapaColorPlano( radasObtenerPantallaActual(), posicionAlturaPantallaActual, COLOR_TERRENO );
-                
+
                 // Pintar objetos estaticos recorriendo el array de pantalla actual
                 pintarObjetosEstaticos();
 
@@ -1836,15 +1845,15 @@ void bucleJuego() {
 
             }
             else {
-                
+
                 // Estamos por encima de la pantalla del suelo
-                
+
                 if ( posicionPantallaYAnterior == 0 ) {
-                    
+
                     borrarMapa( radasObtenerPantallaActual() );
                     ula_sync();
                     radasCambiarPantalla();
-                    
+
                     radasBorrarRectangulo( ( unsigned char )( jugador.xant ),
                                            ( unsigned char )( jugador.yant ),
                                            jugador.tamx2, jugador.tamy );
@@ -1861,9 +1870,9 @@ void bucleJuego() {
                     }
 
                     computarObjetosEnPantalla();
-                
+
                     borrarMapa( radasObtenerPantallaActual() );
-                    
+
                 }
 
                 jugador.xant2 = jugador.xant;
@@ -1917,7 +1926,7 @@ void bucleJuego() {
 
         jugador.xant = xEntera;
         jugador.yant = yEntera;
-   
+
         if ( numObjetosCayendo ) {
             actualizarXAnt2ObjetosCayendo();
             actualizarXAntObjetosCayendo();
@@ -1937,26 +1946,26 @@ void bucleJuego() {
                 }
             }
         }
-        
+
 
 #ifdef DEBUG_CPU_JUEGO
         zx_border( 6 );
 #endif
-        
+
         ula_sync();
         radasCambiarPantalla();
 
     }
-    
+
     radasPonerModoNormal( PAPER_BLACK | INK_CYAN, PAPER_BLACK );
 
 
 }
 
 void rotarPaletaAdelante( unsigned char *paleta ) {
-    
+
     // TODO borrar
-    
+
     unsigned char i;
     unsigned char v1 = paleta[ 0 ];
     unsigned char v2;
@@ -1971,7 +1980,7 @@ void rotarPaletaAdelante( unsigned char *paleta ) {
 void debugYSalir() {
 
     unsigned char i;
-    
+
     radasPonerModoNormal( INK_BLACK | PAPER_WHITE, INK_WHITE );
 
     clsTexto();
@@ -1983,4 +1992,3 @@ void debugYSalir() {
 
     exit( -1 );
 }
-
